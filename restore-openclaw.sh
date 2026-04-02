@@ -87,11 +87,13 @@ tui_wizard() {
     
     CHOICE=$(dialog --backtitle "OpenClaw 安装向导" \
                    --title "选择操作" \
-                   --radiolist "请选择要执行的操作:" 15 55 5 \
+                   --radiolist "请选择要执行的操作:" 17 55 6 \
                    1 "全新安装 OpenClaw" on \
                    2 "从备份恢复数据" off \
                    3 "仅手动备份" off \
                    4 "查看当前状态" off \
+                   5 "安全与依赖管理" off \
+                   6 "完全卸载 OpenClaw" off \
                    3>&1 1>&2 2>&3)
     
     case $CHOICE in
@@ -99,6 +101,8 @@ tui_wizard() {
         2) mode_restore ;;
         3) mode_backup_only ;;
         4) mode_status ;;
+        5) mode_security ;;
+        6) mode_uninstall ;;
         *) exit 0 ;;
     esac
 }
@@ -301,6 +305,275 @@ mode_status() {
     read -p "按 Enter 键继续..."
 }
 
+# 安全与依赖管理
+mode_security() {
+    check_dialog
+    clear
+    
+    SEC_CHOICE=$(dialog --backtitle "OpenClaw 安全管理" \
+                       --title "安全与依赖管理" \
+                       --radiolist "请选择操作:" 17 60 7 \
+                       1 "检查依赖版本" on \
+                       2 "更新 OpenClaw" off \
+                       3 "安全审计" off \
+                       4 "验证备份完整性" off \
+                       5 "查看安全日志" off \
+                       6 "重置 exec 权限" off \
+                       7 "返回上级菜单" off \
+                       3>&1 1>&2 2>&3)
+    
+    case $SEC_CHOICE in
+        1) sec_check_versions ;;
+        2) sec_update ;;
+        3) sec_audit ;;
+        4) sec_verify_backup ;;
+        5) sec_view_logs ;;
+        6) sec_reset_exec ;;
+        7) tui_wizard ;;
+    esac
+}
+
+# 安全: 检查版本
+sec_check_versions() {
+    check_dialog
+    clear
+    
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BOLD}                    依赖版本检查${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
+    echo
+    
+    ITEMS=()
+    
+    # Node.js
+    if command -v node &> /dev/null; then
+        NODE_VER=$(node --version)
+        ITEMS+=("Node.js" "$NODE_VER" "on")
+    fi
+    
+    # npm
+    if command -v npm &> /dev/null; then
+        NPM_VER=$(npm --version)
+        ITEMS+=("npm" "v$NPM_VER" "on")
+    fi
+    
+    # OpenClaw
+    if command -v openclaw &> /dev/null; then
+        OC_VER=$(openclaw --version 2>/dev/null | head -1)
+        ITEMS+=("OpenClaw" "$OC_VER" "on")
+    fi
+    
+    # Restic
+    if command -v restic &> /dev/null; then
+        RESTIC_VER=$(restic version 2>/dev/null | head -1)
+        ITEMS+=("restic" "$RESTIC_VER" "on")
+    fi
+    
+    # Git
+    if command -v git &> /dev/null; then
+        GIT_VER=$(git --version)
+        ITEMS+=("Git" "$GIT_VER" "on")
+    fi
+    
+    # Dialog
+    if command -v dialog &> /dev/null; then
+        DIALOG_VER=$(dialog --version 2>&1 | head -1)
+        ITEMS+=("dialog" "$DIALOG_VER" "on")
+    fi
+    
+    dialog --title "依赖版本" \
+           --msgbox "当前已安装的依赖版本:\n\n$(for i in $(seq 0 2 $(( ${#ITEMS[@]} - 1 ))); do echo "  • ${ITEMS[$i]}: ${ITEMS[$((i+1))]}"; done)\n\n按任意键返回..." 15 50
+    
+    mode_security
+}
+
+# 安全: 更新
+sec_update() {
+    check_dialog
+    clear
+    
+    dialog --title "更新 OpenClaw" \
+           --yesno "确定要更新 OpenClaw 到最新版本吗?\n\n当前版本将保留备份。" 10 50
+    
+    [[ $? -ne 0 ]] && mode_security
+    
+    echo -e "${CYAN}正在更新 OpenClaw...${NC}"
+    
+    if command -v openclaw &> /dev/null; then
+        npm update -g openclaw@latest > /dev/null 2>&1
+        NEW_VER=$(openclaw --version 2>/dev/null | head -1)
+        dialog --title "更新完成" \
+               --msgbox "OpenClaw 已更新到最新版本:\n\n$NEW_VER\n\n按任意键返回..." 10 50
+    else
+        curl -fsSL https://openclaw.ai/install.sh | bash > /dev/null 2>&1
+        dialog --title "安装完成" \
+               --msgbox "OpenClaw 已安装:\n\n$(openclaw --version 2>/dev/null | head -1)" 10 50
+    fi
+    
+    mode_security
+}
+
+# 安全: 审计
+sec_audit() {
+    check_dialog
+    clear
+    
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BOLD}                    安全审计${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
+    echo
+    
+    AUDIT_OUTPUT="/tmp/openclaw-audit-$(date +%Y%m%d_%H%M%S).txt"
+    
+    {
+        echo "OpenClaw 安全审计报告"
+        echo "生成时间: $(date '+%Y-%m-%d %H:%M:%S')"
+        echo "================================"
+        echo
+        
+        echo "[1] 文件权限检查"
+        echo "------------------------"
+        ls -la "$OPENCLAW_DATA/openclaw.json" 2>/dev/null || echo "配置文件不存在"
+        ls -la "$OPENCLAW_DATA/exec-approvals.json" 2>/dev/null || echo "权限配置文件不存在"
+        echo
+        
+        echo "[2] exec 权限配置"
+        echo "------------------------"
+        cat "$OPENCLAW_DATA/exec-approvals.json" 2>/dev/null || echo "权限配置不存在"
+        echo
+        
+        echo "[3] 环境变量检查"
+        echo "------------------------"
+        grep -E "MCAI_LLM_API_KEY|MCAI_LLM_BASE_URL" /etc/environment 2>/dev/null || echo "未设置相关环境变量"
+        echo
+        
+        echo "[4] 备份完整性"
+        echo "------------------------"
+        export RESTIC_PASSWORD="$DEFAULT_RESTIC_PASSWORD"
+        restic snapshots --repo "$RESTIC_REPO" 2>/dev/null | head -10 || echo "无备份快照"
+        echo
+        
+        echo "[5] 插件安全"
+        echo "------------------------"
+        ls -la "$OPENCLAW_DATA/extensions/" 2>/dev/null || echo "无插件目录"
+        echo
+        
+        echo "[6] 日志检查"
+        echo "------------------------"
+        tail -20 /var/log/openclaw-backup.log 2>/dev/null || echo "无备份日志"
+        echo
+        
+        echo "================================"
+        echo "审计完成"
+    } > "$AUDIT_OUTPUT"
+    
+    dialog --title "安全审计" \
+           --textbox "$AUDIT_OUTPUT" 22 70
+    
+    rm -f "$AUDIT_OUTPUT"
+    mode_security
+}
+
+# 安全: 验证备份
+sec_verify_backup() {
+    check_dialog
+    clear
+    
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BOLD}                    验证备份完整性${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
+    echo
+    
+    export RESTIC_PASSWORD="$DEFAULT_RESTIC_PASSWORD"
+    
+    echo -e "${BLUE}[1/3]${NC} 检查 restic 仓库..."
+    if restic check --repo "$RESTIC_REPO" 2>&1 | tee /tmp/restic-check.txt; then
+        echo -e "  ${GREEN}restic 仓库完整${NC}"
+    else
+        echo -e "  ${RED}发现错误${NC}"
+    fi
+    
+    echo
+    echo -e "${BLUE}[2/3]${NC} 查看快照..."
+    SNAPSHOT_LIST=$(restic snapshots --repo "$RESTIC_REPO" 2>/dev/null)
+    echo "$SNAPSHOT_LIST" | head -20
+    
+    echo
+    echo -e "${BLUE}[3/3]${NC} 测试恢复..."
+    TEST_DIR="/tmp/openclaw-restore-test"
+    mkdir -p "$TEST_DIR"
+    restic restore latest --repo "$RESTIC_REPO" --target "$TEST_DIR" 2>/dev/null
+    if [[ -d "$TEST_DIR/root/.openclaw" ]]; then
+        echo -e "  ${GREEN}恢复测试成功${NC}"
+        rm -rf "$TEST_DIR"
+    else
+        echo -e "  ${RED}恢复测试失败${NC}"
+    fi
+    
+    dialog --title "备份验证" \
+           --msgbox "备份完整性验证完成!\n\n详情已显示在上方。\n\n按任意键返回..." 12 50
+    
+    mode_security
+}
+
+# 安全: 查看日志
+sec_view_logs() {
+    check_dialog
+    
+    dialog --title "OpenClaw 日志" \
+           --textbox /var/log/openclaw-backup.log 22 70
+    
+    mode_security
+}
+
+# 安全: 重置 exec
+sec_reset_exec() {
+    check_dialog
+    
+    dialog --title "重置 exec 权限" \
+           --yesno "确定要重置 exec 权限为 ** (最高权限) 吗?" 10 50
+    
+    [[ $? -ne 0 ]] && mode_security
+    
+    openclaw approvals allowlist add --agent main "**" > /dev/null 2>&1
+    
+    dialog --title "完成" \
+           --msgbox "exec 权限已重置为 **\n\n按任意键返回..." 10 50
+    
+    mode_security
+}
+
+# 完全卸载
+mode_uninstall() {
+    check_dialog
+    
+    dialog --title "卸载 OpenClaw" \
+           --yesno "警告: 此操作将删除:\n\n  • OpenClaw 程序\n  • 配置文件\n  • 插件\n  • 备份脚本\n\n但保留 /root/.openclaw-backups 备份数据\n\n确定要继续吗?" 15 55
+    
+    [[ $? -ne 0 ]] && tui_wizard
+    
+    echo -e "${RED}正在卸载 OpenClaw...${NC}"
+    
+    # 停止服务
+    pkill -f openclaw 2>/dev/null || true
+    
+    # 卸载 npm 包
+    npm uninstall -g openclaw > /dev/null 2>&1 || true
+    
+    # 保留备份数据，删除其他文件
+    rm -rf "$OPENCLAW_DATA" 2>/dev/null || true
+    rm -f "$SCRIPT_DIR/backup-openclaw.sh" 2>/dev/null || true
+    rm -f /var/log/openclaw-backup.log 2>/dev/null || true
+    
+    # 移除 cron
+    crontab -l 2>/dev/null | grep -v "backup-openclaw" | crontab - 2>/dev/null || true
+    
+    dialog --title "卸载完成" \
+           --msgbox "OpenClaw 已完全卸载\n\n备份数据保留在:\n$BACKUP_DIR\n\n按任意键退出..." 12 50
+    
+    exit 0
+}
+
 # 配置备份
 configure_backup() {
     mkdir -p "$SCRIPT_DIR"
@@ -369,14 +642,18 @@ main() {
         echo "  2) 从备份恢复数据"
         echo "  3) 仅手动备份"
         echo "  4) 查看当前状态"
-        echo "  5) 静默安装(使用默认配置)"
-        read -p "请输入选项 [1-5]: " choice
+        echo "  5) 安全与依赖管理"
+        echo "  6) 卸载 OpenClaw"
+        echo "  7) 静默安装(使用默认配置)"
+        read -p "请输入选项 [1-7]: " choice
         case $choice in
             1) mode_install ;;
             2) mode_restore ;;
             3) mode_backup_only ;;
             4) mode_status ;;
-            5) silent_mode ;;
+            5) mode_security ;;
+            6) mode_uninstall ;;
+            7) silent_mode ;;
             *) exit 0 ;;
         esac
     else

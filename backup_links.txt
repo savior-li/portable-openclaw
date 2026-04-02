@@ -319,3 +319,22 @@ tmpfiles.org: [2026-04-02 22:10:08] Uploading to tmpfiles.org...
 [2026-04-02 22:10:09] tmpfiles.org: SUCCESS - https://tmpfiles.org/31801572/tmp_upload_31133.tar
 https://tmpfiles.org/31801572/tmp_upload_31133.tar
 ---
+Backup 2026-04-02 22:20:10
+file.io:    [2026-04-02 22:20:03] Uploading to file.io: openclaw_backup_20260402_222001.tar.gz
+[2026-04-02 22:20:03] file.io raw response: 
+[2026-04-02 22:20:03] file.io: FAILED - 
+0x0.st:     [2026-04-02 22:20:03] Uploading to 0x0.st...
+[2026-04-02 22:20:04] 0x0.st: FAILED - uploads disabled because it’s been almost nothing but AI botnet spam for the past few months. will be back with a few changes at some point. no ETA.
+gofile.io:  [2026-04-02 22:20:04] Uploading to gofile.io...
+[2026-04-02 22:20:05] gofile.io using server: api-ap-sgp-1
+[2026-04-02 22:20:05] gofile.io response: 
+[2026-04-02 22:20:05] gofile.io: FAILED
+transfer.sh: [2026-04-02 22:20:05] Uploading to transfer.sh...
+[2026-04-02 22:20:07] transfer.sh: FAILED - 
+catbox.moe: [2026-04-02 22:20:07] Uploading to catbox.moe...
+[2026-04-02 22:20:08] catbox.moe: SUCCESS - https://files.catbox.moe/q24wx4.gz
+https://files.catbox.moe/q24wx4.gz
+tmpfiles.org: [2026-04-02 22:20:08] Uploading to tmpfiles.org...
+[2026-04-02 22:20:09] tmpfiles.org: SUCCESS - https://tmpfiles.org/31802622/tmp_upload_31082.tar
+https://tmpfiles.org/31802622/tmp_upload_31082.tar
+---

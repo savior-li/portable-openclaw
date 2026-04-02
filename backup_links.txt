@@ -1,0 +1,8 @@
+Backup 2026-04-02 19:41:41
+file.io:   [2026-04-02 19:41:38] Uploading to file.io: openclaw_backup_20260402_194136.tar.gz
+[2026-04-02 19:41:39] file.io: SUCCESS - 
+0x0.st:    [2026-04-02 19:41:39] Uploading to 0x0.st: openclaw_backup_20260402_194136.tar.gz
+[2026-04-02 19:41:40] 0x0.st: FAILED - uploads disabled because it’s been almost nothing but AI botnet spam for the past few months. will be back with a few changes at some point. no ETA.
+gofile.io: [2026-04-02 19:41:40] Uploading to gofile.io: openclaw_backup_20260402_194136.tar.gz
+[2026-04-02 19:41:40] gofile.io: FAILED to get server
+---

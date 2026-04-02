@@ -147,6 +147,8 @@ show_main_menu() {
             "从备份恢复数据"
             "仅手动备份"
             "查看当前状态"
+            "启动 Gateway"
+            "停止 Gateway"
             "安全与依赖管理"
             "完全卸载 OpenClaw"
         )
@@ -156,6 +158,8 @@ show_main_menu() {
             "从 GitHub 备份恢复所有数据"
             "立即执行一次备份"
             "查看 OpenClaw 运行状态"
+            "在 tmux 中启动 Gateway"
+            "停止 Gateway 进程"
             "版本检查、更新、审计"
             "删除程序，保留备份数据"
         )
@@ -170,22 +174,24 @@ show_main_menu() {
         echo
         print_divider "bottom"
         echo
-        printf "  ${GRAY}↑↓${NC} 选择  ${GRAY}Enter${NC} 确认  ${GRAY}q${NC} 退出\n"
+        printf "  ${GRAY}↑↓${NC} 选择  ${GRAY}Enter${NC} 确认  ${GRAY}q${NC} 退出  ${GRAY}r${NC} 刷新\n"
         echo
         
         read -n1 key
         
         case $key in
             $'\e[A'|w) [[ $SELECTED -gt 1 ]] && ((SELECTED--)) ;;  # 上
-            $'\e[B'|s) [[ $SELECTED -lt 6 ]] && ((SELECTED++)) ;;  # 下
+            $'\e[B'|s) [[ $SELECTED -lt 8 ]] && ((SELECTED++)) ;;  # 下
             ''|$'\r')  # 回车
                 case $SELECTED in
                     1) mode_install; break ;;
                     2) mode_restore; break ;;
                     3) mode_backup_only; break ;;
                     4) mode_status; break ;;
-                    5) show_security_menu; break ;;
-                    6) mode_uninstall; break ;;
+                    5) mode_start_gateway; break ;;
+                    6) mode_stop_gateway; break ;;
+                    7) show_security_menu; break ;;
+                    8) mode_uninstall; break ;;
                 esac
                 ;;
             q|Q) exit 0 ;;
@@ -344,7 +350,7 @@ confirm_dialog() {
 install_dependencies() {
     log_info "安装系统依赖..."
     apt-get update -qq
-    apt-get install -y -qq curl git restic ca-certificates fuse > /dev/null 2>&1
+    apt-get install -y -qq curl git restic ca-certificates fuse tmux > /dev/null 2>&1
     
     if ! command -v openclaw &> /dev/null; then
         log_info "安装 OpenClaw..."
@@ -606,6 +612,7 @@ sec_check_versions() {
     command -v openclaw &> /dev/null && printf "  %-15s ${GREEN}%s${NC}\n" "OpenClaw:" "$(openclaw --version 2>/dev/null | head -1)"
     command -v restic &> /dev/null && printf "  %-15s ${GREEN}%s${NC}\n" "restic:" "$(restic version 2>/dev/null | head -1)"
     command -v git &> /dev/null && printf "  %-15s ${GREEN}%s${NC}\n" "Git:" "$(git --version)"
+    command -v tmux &> /dev/null && printf "  %-15s ${GREEN}%s${NC}\n" "tmux:" "$(tmux -V)"
     
     echo
     pause
@@ -709,6 +716,75 @@ sec_reset_exec() {
         openclaw approvals allowlist add --agent main "**" > /dev/null 2>&1
         echo
         echo -e "  ${GREEN}✓${NC} exec 权限已重置为 **"
+    fi
+    
+    echo
+    pause
+}
+
+# 启动 Gateway
+mode_start_gateway() {
+    clear_screen
+    echo
+    print_title "启动 Gateway"
+    echo
+    
+    if tmux has-session -t openclaw 2>/dev/null; then
+        echo -e "  ${YELLOW}tmux 会话 'openclaw' 已存在${NC}"
+        if confirm_dialog "是否重新创建会话?"; then
+            tmux kill-session -t openclaw 2>/dev/null || true
+        else
+            echo -e "  ${GRAY}取消启动${NC}"
+            pause
+            return
+        fi
+    fi
+    
+    echo -e "  ${BLUE}在 tmux 中启动 Gateway...${NC}"
+    
+    tmux new-session -d -s openclaw "export MCAI_LLM_API_KEY='$DEFAULT_API_KEY'; export MCAI_LLM_BASE_URL='$DEFAULT_API_URL'; openclaw gateway"
+    
+    sleep 2
+    
+    if tmux has-session -t openclaw 2>/dev/null; then
+        echo -e "  ${GREEN}✓${NC} Gateway 已启动"
+        echo -e "  ${WHITE}会话名称:${NC} ${CYAN}openclaw${NC}"
+        echo -e "  ${WHITE}连接地址:${NC} ${CYAN}http://127.0.0.1:18789${NC}"
+        echo
+        echo -e "  ${WHITE}常用 tmux 命令:${NC}"
+        printf "    ${GRAY}tmux attach -t openclaw${NC}  # 进入会话\n"
+        printf "    ${GRAY}tmux kill-session -t openclaw${NC}  # 停止会话\n"
+        printf "    ${GRAY}Ctrl+b d${NC}  # 分离会话\n"
+    else
+        echo -e "  ${RED}✗${NC} 启动失败"
+    fi
+    
+    echo
+    pause
+}
+
+# 停止 Gateway
+mode_stop_gateway() {
+    clear_screen
+    echo
+    print_title "停止 Gateway"
+    echo
+    
+    if tmux has-session -t openclaw 2>/dev/null; then
+        if confirm_dialog "确定要停止 Gateway (tmux 会话 openclaw) 吗?"; then
+            tmux kill-session -t openclaw 2>/dev/null
+            echo -e "  ${GREEN}✓${NC} Gateway 已停止"
+        else
+            echo -e "  ${GRAY}取消操作${NC}"
+        fi
+    else
+        echo -e "  ${GRAY}tmux 会话 'openclaw' 不存在${NC}"
+        echo -e "  ${WHITE}尝试直接停止进程...${NC}"
+        if pkill -f "openclaw gateway" 2>/dev/null; then
+            echo -e "  ${GREEN}✓${NC} Gateway 进程已停止"
+        else
+            echo -e "  ${YELLOW}没有运行的 Gateway${NC}"
+        fi
     fi
     
     echo

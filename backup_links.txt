@@ -85,3 +85,19 @@ catbox.moe: [2026-04-02 20:20:07] Uploading to catbox.moe...
 [2026-04-02 20:20:09] catbox.moe: SUCCESS - https://files.catbox.moe/y9gd5a.gz
 https://files.catbox.moe/y9gd5a.gz
 ---
+Backup 2026-04-02 20:30:09
+file.io:    [2026-04-02 20:30:03] Uploading to file.io: openclaw_backup_20260402_203001.tar.gz
+[2026-04-02 20:30:03] file.io raw response: 
+[2026-04-02 20:30:03] file.io: FAILED - 
+0x0.st:     [2026-04-02 20:30:03] Uploading to 0x0.st...
+[2026-04-02 20:30:04] 0x0.st: FAILED - uploads disabled because it’s been almost nothing but AI botnet spam for the past few months. will be back with a few changes at some point. no ETA.
+gofile.io:  [2026-04-02 20:30:04] Uploading to gofile.io...
+[2026-04-02 20:30:05] gofile.io using server: api-ap-sgp-1
+[2026-04-02 20:30:05] gofile.io response: 
+[2026-04-02 20:30:05] gofile.io: FAILED
+transfer.sh: [2026-04-02 20:30:05] Uploading to transfer.sh...
+[2026-04-02 20:30:07] transfer.sh: FAILED - 
+catbox.moe: [2026-04-02 20:30:07] Uploading to catbox.moe...
+[2026-04-02 20:30:08] catbox.moe: SUCCESS - https://files.catbox.moe/86s0m9.gz
+https://files.catbox.moe/86s0m9.gz
+---

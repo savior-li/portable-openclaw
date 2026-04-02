@@ -14,27 +14,27 @@
 
 # set -e  # 暂时禁用以便调试
 
-# 颜色定义
-RED=$'\033[0;31m'
-GREEN=$'\033[0;32m'
-YELLOW=$'\033[1;33m'
-BLUE=$'\033[0;34m'
-CYAN=$'\033[0;36m'
-MAGENTA=$'\033[0;35m'
-WHITE=$'\033[1;37m'
-GRAY=$'\033[0;90m'
-BOLD=$'\033[1m'
-DIM=$'\033[2m'
-NC=$'\033[0m'
+# 颜色定义 (空 = 无颜色)
+RED=''
+GREEN=''
+YELLOW=''
+BLUE=''
+CYAN=''
+MAGENTA=''
+WHITE=''
+GRAY=''
+BOLD=''
+DIM=''
+NC=''
 
-# 颜色快捷函数
-r() { echo -e "${RED}$1${NC}"; }
-g() { echo -e "${GREEN}$1${NC}"; }
-y() { echo -e "${YELLOW}$1${NC}"; }
-b() { echo -e "${BLUE}$1${NC}"; }
-c() { echo -e "${CYAN}$1${NC}"; }
-w() { echo -e "${WHITE}$1${NC}"; }
-d() { echo -e "${DIM}$1${NC}"; }
+# 颜色快捷函数 (空操作)
+r() { echo "$1"; }
+g() { echo "$1"; }
+y() { echo "$1"; }
+b() { echo "$1"; }
+c() { echo "$1"; }
+w() { echo "$1"; }
+d() { echo "$1"; }
 
 # 配置
 GITHUB_REPO="https://github.com/savior-li/portable-openclaw.git"

@@ -167,3 +167,22 @@ https://files.catbox.moe/gxy2vz.gz
 tmpfiles.org: [2026-04-02 21:03:23] Uploading to tmpfiles.org...
 [2026-04-02 21:03:25] tmpfiles.org: FAILED - Invalid file extension.
 ---
+Backup 2026-04-02 21:04:24
+file.io:    [2026-04-02 21:04:15] Uploading to file.io: openclaw_backup_20260402_210412.tar.gz
+[2026-04-02 21:04:15] file.io raw response: 
+[2026-04-02 21:04:15] file.io: FAILED - 
+0x0.st:     [2026-04-02 21:04:15] Uploading to 0x0.st...
+[2026-04-02 21:04:16] 0x0.st: FAILED - uploads disabled because it’s been almost nothing but AI botnet spam for the past few months. will be back with a few changes at some point. no ETA.
+gofile.io:  [2026-04-02 21:04:16] Uploading to gofile.io...
+[2026-04-02 21:04:16] gofile.io using server: api-ap-sgp-1
+[2026-04-02 21:04:16] gofile.io response: 
+[2026-04-02 21:04:16] gofile.io: FAILED
+transfer.sh: [2026-04-02 21:04:16] Uploading to transfer.sh...
+[2026-04-02 21:04:18] transfer.sh: FAILED - 
+catbox.moe: [2026-04-02 21:04:18] Uploading to catbox.moe...
+[2026-04-02 21:04:20] catbox.moe: SUCCESS - https://files.catbox.moe/1gcsw2.gz
+https://files.catbox.moe/1gcsw2.gz
+tmpfiles.org: [2026-04-02 21:04:20] Uploading to tmpfiles.org...
+[2026-04-02 21:04:23] tmpfiles.org: SUCCESS - https://tmpfiles.org/31794010/tmp_upload_23759.tar
+https://tmpfiles.org/31794010/tmp_upload_23759.tar
+---

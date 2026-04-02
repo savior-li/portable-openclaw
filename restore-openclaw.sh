@@ -12,20 +12,20 @@
 # ═══════════════════════════════════════════════════════════════════
 #
 
-set -e
+# set -e  # 暂时禁用以便调试
 
 # 颜色定义
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
-WHITE='\033[1;37m'
-GRAY='\033[0;90m'
-BOLD='\033[1m'
-DIM='\033[2m'
-NC='\033[0m'
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[1;33m'
+BLUE=$'\033[0;34m'
+CYAN=$'\033[0;36m'
+MAGENTA=$'\033[0;35m'
+WHITE=$'\033[1;37m'
+GRAY=$'\033[0;90m'
+BOLD=$'\033[1m'
+DIM=$'\033[2m'
+NC=$'\033[0m'
 
 # 颜色快捷函数
 r() { echo -e "${RED}$1${NC}"; }
@@ -68,32 +68,32 @@ cls() { clear; }
 
 # ASCII Art Logo
 print_logo() {
-    cat << 'EOF'
-${CYAN}
-    ╔═══════════════════════════════════════════════════════════╗
-    ║                                                           ║
-    ║   ${WHITE}  ____                _         _     ____            ${CYAN}║
-    ║   ${WHITE} | __ ) _ __ __ _  ___| | __ _  | |_ |  _ \ _ __ ___| |_${CYAN}║
-    ║   ${WHITE} |  _ \| '__/ _\` |/ __| |/ _\` | | __|| |_) | '__/ _ \ __|${CYAN}║
-    ║   ${WHITE} | |_) | | | (_| | (__| | (_| | | |_ |  __/| | |  __/ |_${CYAN}║
-    ║   ${WHITE} |____/|_|  \__,_|\___|_|\__,_|  \__||_|   |_|  \___|\__|${CYAN}║
-    ║                                                           ║
-    ║   ${DIM}~ Portable AI Gateway ~${CYAN}                                  ║
-    ║   ${DIM}v2026.04.02${CYAN}                                               ║
-    ║                                                           ║
-    ╚═══════════════════════════════════════════════════════════╝
-EOF
+    echo -e "${CYAN}"
+    echo "    ╔═══════════════════════════════════════════════════════════╗"
+    echo "    ║                                                           ║"
+    echo "    ║   ${WHITE}  ____                _         _     ____            ${CYAN}║"
+    echo "    ║   ${WHITE} | __ ) _ __ __ _  ___| | __ _  | |_ |  _ \\ _ __ ___| |_${CYAN}║"
+    echo "    ║   ${WHITE} |  _ \\| '__/ _\` |/ __| |/ _\` | | __|| |_) | '__/ _ \\ __|${CYAN}║"
+    echo "    ║   ${WHITE} | |_) | | | (_| | (__| | (_| | | |_ |  __/| | |  __/ |_${CYAN}║"
+    echo "    ║   ${WHITE} |____/|_|  \\__,_|\\___|_|\\__,_|  \\__||_|   |_|  \\___|\\__|${CYAN}║"
+    echo "    ║                                                           ║"
+    echo "    ║   ${DIM}~ Portable AI Gateway ~${CYAN}                                  ║"
+    echo "    ║   ${DIM}v2026.04.02${CYAN}                                               ║"
+    echo "    ║                                                           ║"
+    echo "    ╚═══════════════════════════════════════════════════════════╝"
+    echo -n "${NC}"
 }
 
 # 打印分隔线
 print_line() {
-    echo -e "${CYAN}  ${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}${1:─<}${1:->}  ${NC}"
+    local char="${1:--}"
+    echo -e "${CYAN}  ${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}${char}  ${NC}"
 }
 
 # 打印标题
 print_header() {
     echo
-    print_logo | sed -e "s/\${CYAN}/$CYAN/g" -e "s/\${WHITE}/$WHITE/g" -e "s/\${DIM}/$DIM/g"
+    print_logo
     echo
 }
 
@@ -102,7 +102,7 @@ print_opt() {
     local num="$1"
     local text="$2"
     local desc="$3"
-    local n=$(($num))
+    local n=$num
     
     if [[ $SELECTED -eq $n ]]; then
         echo -e "  ${GREEN}●${NC} ${WHITE}${BOLD}$num. $text${NC}"
@@ -116,7 +116,7 @@ print_opt() {
 # 底部提示
 print_footer() {
     echo
-    print_line "="
+    echo -e "${CYAN}  ──────────────────────────────────────────────────────────${NC}"
     echo -e "  ${GRAY} [↑↓] 导航   [Enter] 选择   [Q] 退出   [R] 刷新${NC}"
     echo
 }

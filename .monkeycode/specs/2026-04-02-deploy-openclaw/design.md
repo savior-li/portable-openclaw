@@ -11,19 +11,18 @@
 
 OpenClaw 是一个 AI 模型网关和管理平台，支持多种 LLM Provider 的统一接入。本方案旨在开发环境中部署 OpenClaw，实现：
 
-- OpenClaw 核心服务部署
+- OpenClaw 核心服务部署 (v2026.4.1)
 - monkeycode-ai Provider 和 minimax-m2.7 Model 配置
 - CORS 跨域访问配置
-- 微信插件集成
-- 数据自动备份与快照机制 (restic + GitHub)
+- 微信插件集成 (@tencent-weixin/openclaw-weixin)
+- 数据自动备份与快照机制 (restic + git + GitHub)
 
 ## 架构
 
 ```mermaid
 graph TB
     subgraph OpenClaw["OpenClaw 环境"]
-        OC[OpenClaw Gateway<br/>:18792]
-        OCUI[Control UI<br/>:18789]
+        OC[OpenClaw Gateway<br/>:18789]
         OCData[/root/.openclaw]
     end
     
@@ -35,19 +34,21 @@ graph TB
     subgraph Backup["备份机制 (每10分钟)"]
         Cron[Cron Job]
         Restic[restic snapshot]
-        GitHub[GitHub Repo<br/>savior-li/portable-openclaw]
+        GitLocal[/root/.openclaw-backups]
+        GitHub[GitHub Repo<br/>savior-li/portable-openclaw-backups]
     end
     
     OC <--> MCA
     MCA --> M27
-    OCUI -->|CORS *| Browser
+    OC -->|CORS *| Browser
     
     Cron -->|backup| Restic
-    Restic -->|push| GitHub
+    Restic -->|git commit| GitLocal
+    GitLocal -->|git push| GitHub
 
     subgraph Env["环境变量"]
         API_KEY[MCAI_LLM_API_KEY]
-        BASE_URL[ MCAI_LLM_BASE_URL]
+        BASE_URL[MCAI_LLM_BASE_URL]
     end
     
     MCA -.->|引用| API_KEY
@@ -60,6 +61,8 @@ graph TB
 |--------|-----|------|
 | `MCAI_LLM_API_KEY` | `a7369912-cf56-41ed-885e-7e2582a87c43` | monkeycode-ai API Key |
 | `MCAI_LLM_BASE_URL` | `https://monkeycode-ai.com/v1` | monkeycode-ai API Base URL |
+| `RESTIC_PASSWORD` | `735d591f6831` | restic 仓库加密密码 |
+| `GH_TOKEN` | (需配置) | GitHub Personal Access Token |
 
 ## 组件与接口
 
@@ -67,45 +70,48 @@ graph TB
 
 | 组件 | 说明 | 默认端口 |
 |------|------|---------|
-| Gateway | OpenClaw 网关服务 | 18792 |
-| Control UI | Web 控制界面 | 18789 |
+| Gateway | OpenClaw 网关服务 | 18789 |
+| Control UI | Web 控制界面 | 与 Gateway 共用 |
 
 ### 2. Provider 配置
 
-```yaml
-# /root/.openclaw/config.yaml
-providers:
-  monkeycode-ai:
-    type: openai-compatible
-    baseURL: ${MCAI_LLM_BASE_URL}
-    apiKey: ${MCAI_LLM_API_KEY}
-    models:
-      - id: minimax-m2.7
-        name: minimax-m2.7
-        capabilities:
-          - chat
-          - completion
+实际配置文件 `/root/.openclaw/openclaw.json`:
+
+```json
+{
+  "gateway": {
+    "mode": "local",
+    "controlUi": {
+      "allowedOrigins": ["*"]
+    }
+  },
+  "models": {
+    "providers": {
+      "monkeycode-ai": {
+        "baseUrl": "https://monkeycode-ai.com/v1",
+        "apiKey": "a7369912-cf56-41ed-885e-7e2582a87c43",
+        "models": [
+          {
+            "id": "minimax-m2.7",
+            "name": "minimax-m2.7"
+          }
+        ]
+      }
+    }
+  }
+}
 ```
 
 ### 3. CORS 配置
 
 Control UI 允许所有来源跨域访问：
 
-```yaml
-# /root/.openclaw/config.yaml
-server:
-  controlUi:
-    cors:
-      allowedOrigins:
-        - "*"
-      allowedMethods:
-        - GET
-        - POST
-        - PUT
-        - DELETE
-        - OPTIONS
-      allowedHeaders:
-        - "*"
+```json
+"gateway": {
+  "controlUi": {
+    "allowedOrigins": ["*"]
+  }
+}
 ```
 
 ### 4. 微信插件
@@ -114,58 +120,36 @@ server:
 npx -y @tencent-weixin/openclaw-weixin-cli@latest install
 ```
 
-## 数据模型
+已安装版本: 2.1.3
 
-### OpenClaw 数据目录结构
+## 数据目录
 
 ```
-/root/.openclaw/
-├── config.yaml          # 主配置文件
-├── data/
-│   ├── providers.json    # Provider 状态
-│   ├── models.json       # Model 配置
-│   └── conversations.db  # 对话数据 (SQLite)
-├── logs/
-│   └── gateway.log      # 网关日志
-└── cache/                # 缓存目录
+/root/.openclaw/                    # OpenClaw 数据目录
+├── openclaw.json                   # 主配置文件
+├── agents/                         # Agent 配置
+│   └── main/
+│       └── sessions/               # 会话数据
+├── extensions/                     # 插件目录
+│   └── openclaw-weixin/           # 微信插件
+└── logs/                          # 日志目录
+
+/root/.openclaw-backups/           # 备份目录
+└── restic/                        # restic 快照仓库
+    ├── config
+    ├── data/
+    ├── index/
+    ├── keys/
+    └── snapshots/
 ```
-
-### 备份目标
-
-使用 restic 备份 `/root/.openclaw` 目录到 GitHub 仓库。
 
 ## 备份机制
 
-### 工具选择
+### 备份流程
 
-| 工具 | 用途 |
-|------|------|
-| restic | 增量快照备份 |
-| GitHub | 远程存储仓库 |
-
-### 备份配置
-
-| 参数 | 值 |
-|------|-----|
-| GitHub 仓库 | `github:savior-li/portable-openclaw` |
-| 加密密码 | `735d591f6831` |
-| 备份源目录 | `/root/.openclaw` |
-| 快照标签 | `openclaw-auto-backup` |
-| 保留策略 | 最近 30 个快照 |
-
-### Restic + GitHub 备份流程
-
-```mermaid
-sequenceDiagram
-    participant Cron as Cron (每10分钟)
-    participant Restic as restic
-    participant GitHub as GitHub Repo
-    
-    Cron->>Restic: backup /root/.openclaw
-    Restic->>Restic: 创建快照 (snapshot)
-    Restic->>GitHub: push snapshot
-    Note over GitHub: 使用 GitHub Token 认证
-```
+1. **restic 快照**: 增量备份 `/root/.openclaw` 到 `/root/.openclaw-backups/restic`
+2. **git 提交**: 将 restic 仓库变化提交到本地 git
+3. **GitHub 推送**: 推送到 GitHub (需要 `GH_TOKEN` 环境变量)
 
 ### 备份脚本
 
@@ -173,23 +157,18 @@ sequenceDiagram
 #!/bin/bash
 # /opt/scripts/backup-openclaw.sh
 
-export MCAI_LLM_API_KEY="a7369912-cf56-41ed-885e-7e2582a87c43"
-export MCAI_LLM_BASE_URL="https://monkeycode-ai.com/v1"
-
-export RESTIC_REPOSITORY="github:savior-li/portable-openclaw"
+export RESTIC_REPOSITORY="/root/.openclaw-backups/restic"
 export RESTIC_PASSWORD="735d591f6831"
 BACKUP_SOURCE="/root/.openclaw"
 TAG="openclaw-auto-backup"
 
-restic backup "$BACKUP_SOURCE" \
-    --repo "$RESTIC_REPOSITORY" \
-    --tag "$TAG" \
-    --host "$(hostname)"
+restic backup "$BACKUP_SOURCE" --repo "$RESTIC_REPOSITORY" --tag "$TAG" --host "$(hostname)"
+restic forget --repo "$RESTIC_REPOSITORY" --tag "$TAG" --keep-last 30 --prune
 
-restic forget --repo "$RESTIC_REPOSITORY" \
-    --tag "$TAG" \
-    --keep-last 30 \
-    --prune
+cd /root/.openclaw-backups
+git add .
+git commit -m "Backup $(date)" 
+[ -n "$GH_TOKEN" ] && git push || echo "GH_TOKEN not set"
 ```
 
 ### Cron 配置
@@ -199,211 +178,93 @@ restic forget --repo "$RESTIC_REPOSITORY" \
 */10 * * * * /opt/scripts/backup-openclaw.sh >> /var/log/openclaw-backup.log 2>&1
 ```
 
-### 快照管理命令
+### 快照管理
 
 ```bash
-# 列出所有快照
-restic snapshots --repo "github:savior-li/portable-openclaw"
+# 列出快照
+restic snapshots --repo /root/.openclaw-backups/restic
 
-# 恢复最新快照到 /root/.openclaw
-restic restore latest --repo "github:savior-li/portable-openclaw" --target /root/.openclaw --match-interpreter "host=$(hostname)"
-
-# 恢复到指定快照
-restic restore <snapshot-id> --repo "github:savior-li/portable-openclaw" --target /root/.openclaw
+# 恢复最新快照
+restic restore latest --repo /root/.openclaw-backups/restic --target /
 
 # 手动触发备份
 /opt/scripts/backup-openclaw.sh
 ```
 
-## 实施步骤
+## 实施状态
 
-### Phase 1: 安装 OpenClaw
-
-```bash
-# 检测并安装 Node 24
-curl -fsSL https://openclaw.ai/install.sh | bash
-
-# 验证安装
-openclaw --version
-openclaw doctor
-```
-
-### Phase 2: 配置环境变量
-
-```bash
-# 在 /etc/environment 中添加持久化环境变量
-cat >> /etc/environment << 'EOF'
-MCAI_LLM_API_KEY=a7369912-cf56-41ed-885e-7e2582a87c43
-MCAI_LLM_BASE_URL=https://monkeycode-ai.com/v1
-EOF
-
-# 加载环境变量
-export MCAI_LLM_API_KEY="a7369912-cf56-41ed-885e-7e2582a87c43"
-export MCAI_LLM_BASE_URL="https://monkeycode-ai.com/v1"
-```
-
-### Phase 3: 配置 Provider 和 CORS
-
-```bash
-# 创建配置目录
-mkdir -p /root/.openclaw
-
-# 创建 /root/.openclaw/config.yaml
-cat > /root/.openclaw/config.yaml << 'EOF'
-providers:
-  monkeycode-ai:
-    type: openai-compatible
-    baseURL: ${MCAI_LLM_BASE_URL}
-    apiKey: ${MCAI_LLM_API_KEY}
-    models:
-      - id: minimax-m2.7
-        name: minimax-m2.7
-        capabilities:
-          - chat
-          - completion
-
-server:
-  controlUi:
-    cors:
-      allowedOrigins:
-        - "*"
-      allowedMethods:
-        - GET
-        - POST
-        - PUT
-        - DELETE
-        - OPTIONS
-      allowedHeaders:
-        - "*"
-EOF
-```
-
-### Phase 4: 微信插件
-
-```bash
-npx -y @tencent-weixin/openclaw-weixin-cli@latest install
-```
-
-### Phase 5: 安装 Restic
-
-```bash
-# 通过 apt 安装
-apt-get update && apt-get install -y restic
-
-# 或通过 npm 安装
-npm install -g restic
-
-# 验证安装
-restic version
-```
-
-### Phase 6: 初始化 Restic 仓库
-
-```bash
-export RESTIC_REPOSITORY="github:savior-li/portable-openclaw"
-export RESTIC_PASSWORD="735d591f6831"
-
-# 初始化仓库 (首次运行时)
-restic init --repo "$RESTIC_REPOSITORY"
-
-# 验证仓库访问
-restic snapshots --repo "$RESTIC_REPOSITORY"
-```
-
-### Phase 7: 部署备份脚本
-
-```bash
-# 创建脚本目录
-mkdir -p /opt/scripts
-
-# 创建备份脚本
-cat > /opt/scripts/backup-openclaw.sh << 'EOF'
-#!/bin/bash
-
-export MCAI_LLM_API_KEY="a7369912-cf56-41ed-885e-7e2582a87c43"
-export MCAI_LLM_BASE_URL="https://monkeycode-ai.com/v1"
-export RESTIC_REPOSITORY="github:savior-li/portable-openclaw"
-export RESTIC_PASSWORD="735d591f6831"
-
-BACKUP_SOURCE="/root/.openclaw"
-TAG="openclaw-auto-backup"
-
-restic backup "$BACKUP_SOURCE" \
-    --repo "$RESTIC_REPOSITORY" \
-    --tag "$TAG" \
-    --host "$(hostname)"
-
-restic forget --repo "$RESTIC_REPOSITORY" \
-    --tag "$TAG" \
-    --keep-last 30 \
-    --prune
-EOF
-
-chmod +x /opt/scripts/backup-openclaw.sh
-```
-
-### Phase 8: 配置 Cron
-
-```bash
-# 添加 cron 任务
-(crontab -l 2>/dev/null; echo "*/10 * * * * /opt/scripts/backup-openclaw.sh >> /var/log/openclaw-backup.log 2>&1") | crontab -
-
-# 验证 crontab
-crontab -l
-```
-
-## 正确性属性
-
-1. **数据完整性**: Restic 使用 AES-256 加密，确保备份数据安全
-2. **增量备份**: 仅备份变更内容，减少存储和网络开销
-3. **可恢复性**: 可恢复到任意时间点的快照
-4. **自动化**: 全自动执行，无需人工干预
-5. **跨环境**: 快照存储在 GitHub，新环境可快速恢复
+| 任务 | 状态 |
+|------|------|
+| 安装 OpenClaw | ✅ 完成 |
+| 配置环境变量 | ✅ 完成 |
+| 配置 Provider 和 CORS | ✅ 完成 |
+| 安装微信插件 | ✅ 完成 |
+| 安装 restic | ✅ 完成 |
+| 初始化 restic 仓库 | ✅ 完成 |
+| 部署备份脚本 | ✅ 完成 |
+| 配置 Cron | ✅ 完成 |
+| 配置 GitHub 推送 | ⚠️ 待配置 GH_TOKEN |
 
 ## 错误处理
 
 | 场景 | 处理方式 |
 |------|---------|
 | 网络中断 | Cron 下次执行时自动重试 |
-| GitHub 认证失败 | 记录日志，告警通知 |
+| GitHub Token 缺失 | 跳过 push，保留本地备份 |
 | 磁盘空间不足 | 清理旧快照后重试 |
-| Restic 仓库损坏 | 从 GitHub 拉取最新快照恢复 |
+| Restic 仓库损坏 | 从 GitHub 拉取恢复 |
 
-## 测试策略
+## 待配置事项
 
-| 测试项 | 验证方法 |
-|--------|---------|
-| 安装测试 | `openclaw doctor` 验证安装状态 |
-| Provider 测试 | 启动 Gateway，调用 API 验证 Provider 连接 |
-| CORS 测试 | `curl -I -H "Origin: *" http://localhost:18789` 验证跨域头 |
-| 备份测试 | 手动执行 `/opt/scripts/backup-openclaw.sh`，验证 GitHub 快照创建 |
-| 恢复测试 | 从快照恢复，验证数据完整性 |
-
-## 新环境恢复流程
-
-当在新的开发环境中工作时，按以下步骤恢复数据：
+### 配置 GitHub Token (用于自动推送备份)
 
 ```bash
-# 1. 安装 OpenClaw
-curl -fsSL https://openclaw.ai/install.sh | bash
+# 方式1: 设置环境变量
+export GH_TOKEN="your-github-pat"
 
-# 2. 安装 restic
-apt-get install -y restic
+# 方式2: 添加到 git credentials
+echo "https://username:${GH_TOKEN}@github.com" >> ~/.git-credentials
+git config --global credential.helper store
+```
+
+## 恢复流程
+
+在新环境中恢复数据：
+
+```bash
+# 1. 安装依赖
+apt-get install -y restic git
+
+# 2. 克隆备份仓库
+git clone https://github.com/savior-li/portable-openclaw-backups.git /root/.openclaw-backups
 
 # 3. 恢复数据
-export RESTIC_REPOSITORY="github:savior-li/portable-openclaw"
 export RESTIC_PASSWORD="735d591f6831"
-restic restore latest --repo "$RESTIC_REPOSITORY" --target /
+restic restore latest --repo /root/.openclaw-backups/restic --target /
 
-# 4. 配置环境变量
-export MCAI_LLM_API_KEY="a7369912-cf56-41ed-885e-7e2582a87c43"
-export MCAI_LLM_BASE_URL="https://monkeycode-ai.com/v1"
+# 4. 重新安装 OpenClaw
+curl -fsSL https://openclaw.ai/install.sh | bash
 
 # 5. 重新安装微信插件
 npx -y @tencent-weixin/openclaw-weixin-cli@latest install
 
-# 6. 验证恢复
+# 6. 配置 cron
+echo "*/10 * * * * /opt/scripts/backup-openclaw.sh >> /var/log/openclaw-backup.log 2>&1" | crontab -
+```
+
+## 验证命令
+
+```bash
+# 验证 OpenClaw
 openclaw doctor
+openclaw health
+
+# 验证 Gateway
+openclaw gateway status
+
+# 验证备份
+/opt/scripts/backup-openclaw.sh
+restic snapshots --repo /root/.openclaw-backups/restic
 ```
 
 ## 引用链接
@@ -411,4 +272,4 @@ openclaw doctor
 - [OpenClaw 官方文档](https://docs.openclaw.ai/install)
 - [OpenClaw GitHub](https://github.com/openclaw/openclaw)
 - [Restic 文档](https://restic.readthedocs.io/)
-- [备份仓库](https://github.com/savior-li/portable-openclaw)
+- [备份仓库](https://github.com/savior-li/portable-openclaw-backups)

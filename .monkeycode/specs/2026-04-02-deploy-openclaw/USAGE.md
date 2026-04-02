@@ -87,8 +87,8 @@ graph TB
     Restic -->|commit| GitGitHub
     
     subgraph Data["数据存储"]
-        OCData[/root/.openclaw]
-        ExecApprovals[~/.openclaw<br/>/exec-approvals.json]
+        OCData["/root/.openclaw"]
+        ExecApprovals["~/.openclaw/exec-approvals.json"]
     end
     
     ExecEngine -.->|allowlist: **| ExecApprovals
@@ -260,7 +260,7 @@ openclaw config validate
 
 ```mermaid
 flowchart LR
-    A[/root/.openclaw] --> B[restic backup]
+    A["/root/.openclaw"] --> B[restic backup]
     B --> C[增量快照]
     C --> D[保留最近30个]
     D --> E[git commit]

@@ -354,8 +354,8 @@ graph TB
     
     subgraph DevEnv["monkeycode-ai 开发环境"]
         OC[OpenClaw Gateway<br/>:18789]
-        Data[/root/.openclaw]
-        Backup[/root/.openclaw-backups]
+        Data["/root/.openclaw"]
+        Backup["/root/.openclaw-backups"]
     end
     
     OC --> Data

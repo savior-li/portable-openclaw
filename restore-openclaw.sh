@@ -54,6 +54,15 @@ check_root() {
     fi
 }
 
+# 检查并安装 dialog
+check_dialog() {
+    if ! command -v dialog &> /dev/null; then
+        echo -e "${YELLOW}[INFO] 安装 dialog...${NC}"
+        apt-get update -qq
+        apt-get install -y -qq dialog > /dev/null 2>&1
+    fi
+}
+
 # 安装依赖
 install_dependencies() {
     log_info "安装系统依赖..."
@@ -69,6 +78,7 @@ install_dependencies() {
 
 # TUI 向导
 tui_wizard() {
+    check_dialog
     clear
     
     dialog --backtitle "OpenClaw 安装向导" \
@@ -351,11 +361,31 @@ main() {
     check_root
     mkdir -p "$(dirname "$LOG_FILE")"
     
-    case "${1:-}" in
-        --silent|-s) silent_mode ;;
-        --help|-h) usage ;;
-        *) tui_wizard ;;
-    esac
+    if ! command -v dialog &> /dev/null && [[ "${1:-}" != "--silent" && "${1:-}" != "-s" ]]; then
+        echo -e "${YELLOW}dialog 未安装，使用命令行模式${NC}"
+        echo
+        echo "请选择操作:"
+        echo "  1) 全新安装 OpenClaw"
+        echo "  2) 从备份恢复数据"
+        echo "  3) 仅手动备份"
+        echo "  4) 查看当前状态"
+        echo "  5) 静默安装(使用默认配置)"
+        read -p "请输入选项 [1-5]: " choice
+        case $choice in
+            1) mode_install ;;
+            2) mode_restore ;;
+            3) mode_backup_only ;;
+            4) mode_status ;;
+            5) silent_mode ;;
+            *) exit 0 ;;
+        esac
+    else
+        case "${1:-}" in
+            --silent|-s) silent_mode ;;
+            --help|-h) usage ;;
+            *) tui_wizard ;;
+        esac
+    fi
 }
 
 main "$@"

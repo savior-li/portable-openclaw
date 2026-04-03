@@ -1,0 +1,18 @@
+{
+  "id": "20260403_problem_054317",
+  "type": "problem",
+  "problem": "MonkeyCode AI API 返回 401 Unauthorized",
+  "context": "",
+  "cause": "API Key 失效或过期",
+  "solution": "需要更新 API Key 或更换其他 API 提供商",
+  "prevention": "定期检查 API Key 有效性",
+  "tags": [
+    "API",
+    "认证",
+    "OpenClaw"
+  ],
+  "related_problems": [],
+  "timestamp": "2026-04-03T05:43:17.068503",
+  "version": "1.0.0",
+  "effectiveness_score": 0.0
+}

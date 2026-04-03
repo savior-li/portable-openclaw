@@ -1,0 +1,23 @@
+{
+  "id": "20260403_preference_055057",
+  "type": "preferences",
+  "category": "style",
+  "preference": "使用 TypeScript 而不是 JavaScript",
+  "context": "前端项目开发",
+  "priority": "high",
+  "tags": [
+    "前端",
+    "TypeScript",
+    "代码质量"
+  ],
+  "alternatives": [
+    "JavaScript",
+    "Flow"
+  ],
+  "reason": "TypeScript 提供更好的类型安全和开发体验",
+  "created_by": "user",
+  "timestamp": "2026-04-03T05:50:57.507918",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": ""
+}

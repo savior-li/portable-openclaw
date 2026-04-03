@@ -1,0 +1,18 @@
+{
+  "id": "20260403_behavioral_055103",
+  "type": "behavioral",
+  "category": "avoid",
+  "rule": "避免在循环中进行数据库查询",
+  "context": "",
+  "priority": "medium",
+  "tags": [],
+  "examples": [],
+  "counter_examples": [],
+  "rationale": "从用户指令自动提取",
+  "created_by": "learner-auto",
+  "timestamp": "2026-04-03T05:51:03.528807",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": "",
+  "effectiveness_score": 0.0
+}

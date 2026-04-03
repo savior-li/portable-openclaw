@@ -1,0 +1,22 @@
+{
+  "id": "20260403_preference_080035",
+  "type": "preferences",
+  "category": "tool",
+  "preference": "使用 Husky 管理 Git Hooks",
+  "context": "Git 工作流自动化",
+  "priority": "medium",
+  "tags": [
+    "Git",
+    "自动化"
+  ],
+  "alternatives": [
+    "pre-commit",
+    "lint-staged"
+  ],
+  "reason": "自动化代码检查和测试",
+  "created_by": "user",
+  "timestamp": "2026-04-03T08:00:35.005489",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": ""
+}

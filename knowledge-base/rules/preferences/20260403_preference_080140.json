@@ -1,0 +1,22 @@
+{
+  "id": "20260403_preference_080140",
+  "type": "preferences",
+  "category": "tool",
+  "preference": "使用 Jest 作为测试框架",
+  "context": "JavaScript/TypeScript 项目",
+  "priority": "medium",
+  "tags": [
+    "测试",
+    "Jest"
+  ],
+  "alternatives": [
+    "Mocha",
+    "Vitest"
+  ],
+  "reason": "Jest 功能完整，生态成熟",
+  "created_by": "user",
+  "timestamp": "2026-04-03T08:01:40.627531",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": ""
+}

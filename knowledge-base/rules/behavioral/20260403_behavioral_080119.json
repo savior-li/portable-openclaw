@@ -1,0 +1,21 @@
+{
+  "id": "20260403_behavioral_080119",
+  "type": "behavioral",
+  "category": "deny",
+  "rule": "所有用户输入必须进行验证和清理",
+  "context": "安全编程",
+  "priority": "high",
+  "tags": [
+    "安全",
+    "输入验证"
+  ],
+  "examples": [],
+  "counter_examples": [],
+  "rationale": "防止注入攻击和其他安全问题",
+  "created_by": "user",
+  "timestamp": "2026-04-03T08:01:19.335744",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": "",
+  "effectiveness_score": 0.0
+}

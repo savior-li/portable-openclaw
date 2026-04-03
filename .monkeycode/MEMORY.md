@@ -48,9 +48,22 @@ Agent 在执行任务过程中发现的条目应遵循以下格式:
 - Category: 代码结构
 - Instructions:
   - 知识库位于 /workspace/knowledge-base/
-  - 核心理念: 我教AI做人,你帮我做事
+  - 核心理念: 我教AI做人，你帮我做事
   - 分为 rules/ (做人) 和 cases/ (做事) 两大类
-  - 提供 CLI 工具 (cli.py) 和 Python API (manager.py)
+  - 提供 CLI 工具 和 Python API (manager.py)
   - 支持行为规则、偏好设置、思维模式、执行记录、问题记录、结果记录 6 种数据类型
-  - 已实现基础功能,测试全部通过
+  - Phase 1 已完成: 基础功能实现 (3000+ 行代码)
+  - Phase 2 已完成: 智能学习引擎 (learner.py, auto_learner.py)
+  - 所有测试通过，代码已提交到 Git
   - 计划集成到 ClawHub 作为 Skill 发布
+
+[知识库核心规则]
+- Date: 2026-04-03
+- Context: Agent 在使用知识库时归纳
+- Category: 代码模式
+- Instructions:
+  - 高优先级规则: 禁止删除文件、所有 API 调用必须有错误处理
+  - 工具偏好: 使用 pnpm 而不是 npm、优先使用 TypeScript
+  - 已知问题: MonkeyCode AI API Key 失效，需要更新
+  - 自动学习规则: 4 条 (包括避免在循环中查询数据库)
+  - 知识库总记录: 17+ 条 (规则 4, 偏好 3, 执行 3, 问题 2, 结果 3)

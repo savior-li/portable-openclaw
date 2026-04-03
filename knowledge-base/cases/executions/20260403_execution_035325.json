@@ -1,0 +1,23 @@
+{
+  "id": "20260403_execution_035325",
+  "type": "execution",
+  "command": "test command",
+  "context": "测试环境",
+  "steps": [
+    "step 1",
+    "step 2",
+    "step 3"
+  ],
+  "outcome": "success",
+  "duration_ms": 1000,
+  "tags": [
+    "测试"
+  ],
+  "learnings": [
+    "学习点1",
+    "学习点2"
+  ],
+  "issues": [],
+  "timestamp": "2026-04-03T03:53:25.963145",
+  "version": "1.0.0"
+}

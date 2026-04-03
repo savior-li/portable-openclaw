@@ -1,0 +1,21 @@
+{
+  "id": "20260403_behavioral_035325",
+  "type": "behavioral",
+  "category": "recommend",
+  "rule": "测试规则：所有文件操作需要确认",
+  "context": "文件操作场景",
+  "priority": "medium",
+  "tags": [
+    "测试",
+    "文件"
+  ],
+  "examples": [],
+  "counter_examples": [],
+  "rationale": "测试功能",
+  "created_by": "user",
+  "timestamp": "2026-04-03T03:53:25.962415",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": "",
+  "effectiveness_score": 0.0
+}

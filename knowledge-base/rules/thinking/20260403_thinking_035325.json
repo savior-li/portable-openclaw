@@ -1,0 +1,21 @@
+{
+  "id": "20260403_thinking_035325",
+  "type": "thinking",
+  "category": "problem-solving",
+  "pattern": "测试模式：先分析再执行",
+  "context": "复杂任务",
+  "priority": "high",
+  "tags": [],
+  "steps": [
+    "理解需求",
+    "分析方案",
+    "执行实现",
+    "验证结果"
+  ],
+  "expected_outcome": "高质量交付",
+  "created_by": "user",
+  "timestamp": "2026-04-03T03:53:25.962990",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": ""
+}

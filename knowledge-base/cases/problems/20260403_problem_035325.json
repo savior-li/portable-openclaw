@@ -1,0 +1,17 @@
+{
+  "id": "20260403_problem_035325",
+  "type": "problem",
+  "problem": "测试问题：依赖版本冲突",
+  "context": "",
+  "cause": "版本不兼容",
+  "solution": "使用 pnpm 解决",
+  "prevention": "锁定版本号",
+  "tags": [
+    "测试",
+    "依赖"
+  ],
+  "related_problems": [],
+  "timestamp": "2026-04-03T03:53:25.963315",
+  "version": "1.0.0",
+  "effectiveness_score": 0.0
+}

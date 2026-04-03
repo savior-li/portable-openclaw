@@ -1,0 +1,18 @@
+{
+  "id": "",
+  "type": "behavioral",
+  "category": "deny|recommend|prefer|avoid",
+  "rule": "",
+  "context": "",
+  "priority": "high|medium|low",
+  "tags": [],
+  "examples": [],
+  "counter_examples": [],
+  "rationale": "",
+  "created_by": "user|agent",
+  "timestamp": "",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": "",
+  "effectiveness_score": 0.0
+}

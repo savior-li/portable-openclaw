@@ -41,3 +41,16 @@ Agent 在执行任务过程中发现的条目应遵循以下格式:
   - 恢复脚本位于 /workspace/restore-openclaw.sh
   - 备份状态记录在 BACKUP_STATUS.md 文件中
   - 已配置 catbox.moe 作为唯一可用的备份上传服务
+
+[知识库系统实现]
+- Date: 2026-04-03
+- Context: Agent 在实现知识库系统时发现
+- Category: 代码结构
+- Instructions:
+  - 知识库位于 /workspace/knowledge-base/
+  - 核心理念: 我教AI做人,你帮我做事
+  - 分为 rules/ (做人) 和 cases/ (做事) 两大类
+  - 提供 CLI 工具 (cli.py) 和 Python API (manager.py)
+  - 支持行为规则、偏好设置、思维模式、执行记录、问题记录、结果记录 6 种数据类型
+  - 已实现基础功能,测试全部通过
+  - 计划集成到 ClawHub 作为 Skill 发布

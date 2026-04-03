@@ -1,0 +1,16 @@
+{
+  "id": "",
+  "type": "preferences",
+  "category": "tool|style|workflow|communication",
+  "preference": "",
+  "context": "",
+  "priority": "high|medium|low",
+  "tags": [],
+  "alternatives": [],
+  "reason": "",
+  "created_by": "user|agent",
+  "timestamp": "",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": ""
+}

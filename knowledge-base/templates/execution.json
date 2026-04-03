@@ -1,0 +1,14 @@
+{
+  "id": "",
+  "type": "execution",
+  "command": "",
+  "context": "",
+  "steps": [],
+  "outcome": "success|failure|partial",
+  "duration_ms": 0,
+  "tags": [],
+  "learnings": [],
+  "issues": [],
+  "timestamp": "",
+  "version": "1.0.0"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "20260403_behavioral_035037",
+  "type": "behavioral",
+  "category": "deny",
+  "rule": "禁止删除文件",
+  "context": "",
+  "priority": "high",
+  "tags": [
+    "安全",
+    "文件操作"
+  ],
+  "examples": [],
+  "counter_examples": [],
+  "rationale": "防止数据丢失，避免不可逆操作",
+  "created_by": "user",
+  "timestamp": "2026-04-03T03:50:37.089235",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": "",
+  "effectiveness_score": 0.0
+}

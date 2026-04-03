@@ -1,0 +1,19 @@
+{
+  "id": "20260403_preference_035325",
+  "type": "preferences",
+  "category": "style",
+  "preference": "测试偏好：优先使用 TypeScript",
+  "context": "前端项目",
+  "priority": "high",
+  "tags": [
+    "测试",
+    "TypeScript"
+  ],
+  "alternatives": [],
+  "reason": "类型安全",
+  "created_by": "user",
+  "timestamp": "2026-04-03T03:53:25.962806",
+  "version": "1.0.0",
+  "usage_count": 0,
+  "last_used": ""
+}
